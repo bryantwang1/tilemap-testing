@@ -10,7 +10,7 @@ function preload() {
 var map;
 var layer1;
 var layer2;
-var layer3;
+// var layer3;
 
 var marker;
 var currentTile = 0;
@@ -20,7 +20,7 @@ var cursors;
 var showLayersKey;
 var layer1Key;
 var layer2Key;
-var layer3Key;
+// var layer3Key;
 
 function create() {
 
@@ -47,9 +47,9 @@ function create() {
 
     layer2 = map.createBlankLayer('level2', 25, 20, 32, 32);
 
-    layer3 = map.createBlankLayer('level3', 25, 20, 32, 32);
+    // layer3 = map.createBlankLayer('level3', 25, 20, 32, 32);
 
-    currentLayer = layer3;
+    currentLayer = layer2;
 
     //  Create our tile selector at the top of the screen
     createTileSelector();
@@ -61,16 +61,16 @@ function create() {
     showLayersKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     layer1Key = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
     layer2Key = game.input.keyboard.addKey(Phaser.Keyboard.TWO);
-    layer3Key = game.input.keyboard.addKey(Phaser.Keyboard.THREE);
+    // layer3Key = game.input.keyboard.addKey(Phaser.Keyboard.THREE);
 
     showLayersKey.onDown.add(changeLayer, this);
     layer1Key.onDown.add(changeLayer, this);
     layer2Key.onDown.add(changeLayer, this);
-    layer3Key.onDown.add(changeLayer, this);
+    // layer3Key.onDown.add(changeLayer, this);
 
     console.log(layer1.index);
     console.log(layer2.index);
-    console.log(layer3.index);
+    // console.log(layer3.index);
 
 }
 
@@ -81,29 +81,29 @@ function changeLayer(key) {
         case Phaser.Keyboard.SPACEBAR:
             layer1.alpha = 1;
             layer2.alpha = 1;
-            layer3.alpha = 1;
+            // layer3.alpha = 1;
             break;
 
         case Phaser.Keyboard.ONE:
             currentLayer = layer1;
             layer1.alpha = 1;
             layer2.alpha = 0.2;
-            layer3.alpha = 0.2;
+            // layer3.alpha = 0.2;
             break;
 
         case Phaser.Keyboard.TWO:
             currentLayer = layer2;
             layer1.alpha = 0.2;
             layer2.alpha = 1;
-            layer3.alpha = 0.2;
+            // layer3.alpha = 0.2;
             break;
-
-        case Phaser.Keyboard.THREE:
-            currentLayer = layer3;
-            layer1.alpha = 0.2;
-            layer2.alpha = 0.2;
-            layer3.alpha = 1;
-            break;
+        //
+        // case Phaser.Keyboard.THREE:
+        //     currentLayer = layer3;
+        //     layer1.alpha = 0.2;
+        //     layer2.alpha = 0.2;
+        //     layer3.alpha = 1;
+        //     break;
     }
 
 }
@@ -119,11 +119,11 @@ function updateMarker() {
     marker.x = currentLayer.getTileX(game.input.activePointer.worldX) * 32;
     marker.y = currentLayer.getTileY(game.input.activePointer.worldY) * 32;
 
-    if (game.input.mousePointer.isDown)
-    {
-        map.putTile(currentTile, currentLayer.getTileX(marker.x), currentLayer.getTileY(marker.y), currentLayer);
-        // map.fill(currentTile, currentLayer.getTileX(marker.x), currentLayer.getTileY(marker.y), 4, 4, currentLayer);
-    }
+    // if (game.input.mousePointer.isDown)
+    // {
+    //     map.putTile(currentTile, currentLayer.getTileX(marker.x), currentLayer.getTileY(marker.y), currentLayer);
+    //     // map.fill(currentTile, currentLayer.getTileX(marker.x), currentLayer.getTileY(marker.y), 4, 4, currentLayer);
+    // }
 
 }
 
@@ -152,7 +152,7 @@ function update() {
 function render() {
 
     game.debug.text('Current Layer: ' + currentLayer.name, 16, 550);
-    game.debug.text('1-3 Switch Layers. SPACE = Show All. Cursors = Move Camera', 16, 570);
+    game.debug.text('1-2 Switch Layers. SPACE = Show All. Cursors = Move Camera', 16, 570);
 
 }
 
@@ -170,7 +170,7 @@ function createTileSelector() {
 
     var tileStrip = tileSelector.create(1, 1, 'ground_1x1');
     tileStrip.inputEnabled = true;
-    tileStrip.events.onInputDown.add(pickTile, this);
+    // tileStrip.events.onInputDown.add(pickTile, this);
 
     tileSelector.fixedToCamera = true;
 
