@@ -103,7 +103,7 @@ function create() {
     sprite = game.add.sprite(50, 50, 'car');
     sprite.anchor.setTo(0.5, 0.5);
     game.physics.enable(sprite);
-    sprite.body.setSize(32, 32);
+    sprite.body.setSize(16, 16);
 
     game.camera.follow(sprite);
 }
