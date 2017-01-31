@@ -621,6 +621,23 @@ Phaser.Plugin.PathFinderPlugin.prototype.setGrid = function (grid, walkables, it
     }
 };
 
+Phaser.Plugin.PathFinderPlugin.prototype.updateGrid = function (grid) {
+	this._grid = [];
+	for (var i = 0; i < grid.length; i++)
+	{
+			this._grid[i] = [];
+			for (var j = 0; j < grid[i].length; j++)
+			{
+					if (grid[i][j])
+							this._grid[i][j] = grid[i][j].index;
+					else
+							this._grid[i][j] = 0
+			}
+	}
+
+	this._easyStar.setGrid(this._grid);
+}
+
 /**
  * Sets the tile cost for a particular tile type.
  *
