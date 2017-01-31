@@ -15,9 +15,13 @@ var layer2;
 var pathfinder;
 var sprite;
 
+ var tileWidth = 32; //tilemap grid cell width
+ var tileHeight = 32; //tilemap grid cell height
+
 var marker;
 var currentTile = 0;
 var currentLayer;
+var counter = 0;
 
 var cursors;
 var showLayersKey;
@@ -27,6 +31,8 @@ var findPathKey;
 var blocked = false;
 var car_path = [];
 var car_path_step = -1;
+var car_x;
+var car_y;
 
 function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -76,12 +82,14 @@ function create() {
     layer2Key = game.input.keyboard.addKey(Phaser.Keyboard.TWO);
     findPathKey = game.input.keyboard.addKey(Phaser.Keyboard.THREE);
     moveCar = game.input.keyboard.addKey(Phaser.Keyboard.F);
+    moveCarXY = game.input.keyboard.addKey(Phaser.Keyboard.T);
 
     showLayersKey.onDown.add(keyPress, this);
     layer1Key.onDown.add(keyPress, this);
     layer2Key.onDown.add(keyPress, this);
     findPathKey.onDown.add(keyPress, this);
     moveCar.onDown.add(keyPress, this);
+    moveCarXY.onDown.add(keyPress, this);
 
     console.log(layer1.index);
     console.log(layer2.index);
@@ -95,6 +103,7 @@ function create() {
     sprite = game.add.sprite(50, 50, 'car');
     sprite.anchor.setTo(0.5, 0.5);
     game.physics.enable(sprite);
+    sprite.body.setSize(32, 32);
 
     game.camera.follow(sprite);
 }
@@ -124,18 +133,30 @@ function keyPress(key) {
         case Phaser.Keyboard.THREE:
             marker.x = layer2.getTileX(game.input.activePointer.worldX) * 32;
             marker.y = layer2.getTileY(game.input.activePointer.worldY) * 32;
-            marker.spritex = layer2.getTileX(sprite.x) * 32;
-            marker.spritey = layer2.getTileY(sprite.y) * 32;
+            spritex = layer2.getTileX(sprite.x) * 32;
+            spritey = layer2.getTileY(sprite.y) * 32;
 
             blocked = true;
-            findPathTo(layer2.getTileX(marker.spritex), layer2.getTileY(marker.spritey), layer2.getTileX(marker.x), layer2.getTileY(marker.y));
+            findPathTo(layer2.getTileX(spritex), layer2.getTileY(spritey), layer2.getTileX(marker.x), layer2.getTileY(marker.y));
             break;
 
         case Phaser.Keyboard.F:
             marker.x = layer2.getTileX(game.input.activePointer.worldX) * 32;
             marker.y = layer2.getTileY(game.input.activePointer.worldY) * 32;
             blocked = true;
+            break;
 
+        case Phaser.Keyboard.T:
+            marker.x = layer2.getTileX(game.input.activePointer.worldX) * 32;
+            marker.y = layer2.getTileY(game.input.activePointer.worldY) * 32;
+
+
+            car_x = (layer2.getTileX(sprite.x) * 32);
+            car_y = (layer2.getTileY(sprite.y) * 32);
+            blocked = true;
+            findPathTo(layer2.getTileX(car_x), layer2.getTileY(car_y), layer2.getTileX(marker.x), layer2.getTileY(marker.y));
+
+            moveCarAlongXY();
             break;
 
         //
@@ -170,17 +191,18 @@ function updateMarker() {
 }
 
 function findPathTo(originx, originy, tilex, tiley) {
-
     pathfinder.setCallbackFunction(function(path) {
         path = path || [];
         for(var i = 0, ilen = path.length; i < ilen; i++) {
             map.putTile(10, path[i].x, path[i].y, layer1);
         }
+        car_path = path;
         blocked = false;
     });
 
     pathfinder.preparePathCalculation([originx,originy], [tilex,tiley]);
     pathfinder.calculatePath();
+    // move_through_path(car_path);
 }
 
 function update() {
@@ -189,10 +211,10 @@ function update() {
   var next_position, velocity;
 
   game.physics.arcade.collide(sprite, layer2);
-
-  sprite.body.velocity.x = 0;
-  sprite.body.velocity.y = 0;
-  sprite.body.angularVelocity = 0;
+  //
+  // sprite.body.velocity.x = 0;
+  // sprite.body.velocity.y = 0;
+  // sprite.body.angularVelocity = 0;
 
   if (cursors.left.isDown)
   {
@@ -217,26 +239,50 @@ function update() {
   //car movement trigger
   if (car_path.length > 0) {
         next_position = car_path[car_path_step];
-
-        if (!this.reached_target_position(next_position)) {
-            velocity = new Phaser.Point(next_position.x - this.position.x,
-                                   next_position.y - this.position.y);
-            velocity.normalize();
-            sprite.velocity.x = velocity.x * this.walking_speed;
-            sprite.velocity.y = velocity.y * this.walking_speed;
+        console.log(next_position);
+        // if (!reached_target_position(next_position)) {
+            if (!reachedXY(next_position)) {
+                console.log(reachedXY(next_position));
+            // var myNewX = (next_position.x*32 - sprite.x) + 16;
+            // var myNewY = (next_position.y*32 - sprite.y) + 16;
+            //
+            // velocity = new Phaser.Point(myNewX, myNewY);
+            // velocity.normalize();
+            // console.log(velocity);
+            //
+            // var moveX = next_position.x * 32;
+            // var moveY = next_position.y * 32;
+            // sprite.body.velocity.x = velocity.x * 100;
+            // sprite.body.velocity.y = velocity.y * 100;
+            var moveX = next_position.x * tileWidth + tileWidth / 2;
+            var moveY = next_position.y * tileHeight + tileHeight / 2;
+            game.physics.arcade.moveToXY(sprite, moveX, moveY);
         } else {
-            this.position.x = next_position.x;
-            this.position.y = next_position.y;
+            sprite.x = (next_position.x * 32) + 16;
+            sprite.y = (next_position.y * 32) + 16;
+
             if (car_path_step < car_path.length - 1) {
                 car_path_step += 1;
             } else {
                 car_path = [];
                 car_path_step = -1;
-                sprite.velocity.x = 0;
-                sprite.velocity.y = 0;
+                // sprite.body.velocity.x = 0;
+                // sprite.body.velocity.y = 0;
             }
         }
     }
+
+  // if (car_path.length > 0) {
+  //
+  //       next_position = car_path[car_path_step];
+  //       var moveX = next_position.y * tileWidth + tileWidth / 2;
+  //       var moveY = next_position.x * tileHeight + tileHeight / 2;
+  //       this.game.physics.arcade.moveToXY(sprite, moveX, moveY, 300);
+  //       car_path_step += 1;
+  //   } else {
+  //       car_path = [];
+  //       car_path_step = -1;
+  //   }
 
 }
 
@@ -272,17 +318,47 @@ function createTileSelector() {
 
 }
 
-move_to = function (target_position) {
+reached_target_position = function (target_position) {
     "use strict";
-    pathfinding.find_path(this.position, target_position, this.move_through_path, this);
+    var distance;
+    var newTarget = new Phaser.Point((target_position.x*32) + 16, (target_position.y*32) + 16);
+    var spritePoint = new Phaser.Point(sprite.x, sprite.y);
+    distance = spritePoint.distance(target_position);
+    return distance < 16;
+};
+
+move_to = function (target_position) {
+
+    "use strict";
+    // pathfinding.find_path(spritePoint, target_position, move_through_path, this);
 };
 
 move_through_path = function (path) {
     "use strict";
     if (path !== null) {
         car_path = path;
-        car_path_step = 0;
+        car_path_step = 1;
     } else {
         car_path = [];
+    }
+};
+
+moveCarAlongXY = function() {
+    "use strict";
+    if (car_path !== null) {
+        car_path_step = 1;
+
+    } else {
+        car_path = [];
+    }
+};
+
+reachedXY = function(position){
+    "use strict";
+    console.log(game.physics.arcade.distanceToXY(sprite, (position.x * 32)+16, (position.y * 32)+16));
+    if (game.physics.arcade.distanceToXY(sprite, (position.x * 32)+16, (position.y * 32)+16) <= 2) {
+        return true;
+    } else {
+        return false;
     }
 };
