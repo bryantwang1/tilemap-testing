@@ -258,6 +258,8 @@ function update() {
             var moveY = next_position.y * tileHeight + tileHeight / 2;
             game.physics.arcade.moveToXY(sprite, moveX, moveY);
         } else {
+            sprite.body.velocity.x = 0;
+            sprite.body.velocity.y = 0;
             sprite.x = (next_position.x * 32) + 16;
             sprite.y = (next_position.y * 32) + 16;
 
@@ -266,8 +268,6 @@ function update() {
             } else {
                 car_path = [];
                 car_path_step = -1;
-                // sprite.body.velocity.x = 0;
-                // sprite.body.velocity.y = 0;
             }
         }
     }
